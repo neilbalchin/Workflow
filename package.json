@@ -1,0 +1,25 @@
+{
+  "name": "workflow",
+  "version": "1.0.0",
+  "description": "My Web Workflow with NPM, Gulp, SASS and more",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neilbalchin/Workflow.git"
+  },
+  "keywords": [
+    "SASS",
+    "NPM",
+    "Gulp",
+    "Git"
+  ],
+  "author": "Neil Balchin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/neilbalchin/Workflow/issues"
+  },
+  "homepage": "https://github.com/neilbalchin/Workflow#readme"
+}
