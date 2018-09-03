@@ -1,1 +1,0 @@
-global.jQuery=require("jquery"),bootstrap=require("bootstrap"),mustache=require("mustache"),jQuery(document).ready(function(e){e.getJSON("data.json",function(){}).done(function(t){var r=e("#template").html(),u=mustache.render(r,t);e("#gallery").html(u)})});
