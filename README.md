@@ -1,7 +1,7 @@
 # My Workflow with SASS, NPM and Gulp
 My Web Workflow with NPM, Gulp, SASS and more
 
-#Instructions
+# Instructions
 
 1.- Clone this repo or download it from this website.
 
