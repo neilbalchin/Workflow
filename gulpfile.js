@@ -1,20 +1,25 @@
-var gulp         = require('gulp');
-var sass         = require('gulp-sass');
-var browserSync  = require('browser-sync');
-var reload       = browserSync.reload;
-var autoprefixer = require('gulp-autoprefixer');
-var browserify   = require('gulp-browserify');
-var clean        = require('gulp-clean');
-var concat       = require('gulp-concat');
-var merge        = require('merge-stream');
-var newer        = require('gulp-newer');
-var imagemin     = require('gulp-imagemin');
+var gulp           = require('gulp');
+var sass           = require('gulp-sass');
+var browserSync    = require('browser-sync');
+var reload         = browserSync.reload;
+var autoprefixer   = require('gulp-autoprefixer');
+var browserify     = require('gulp-browserify');
+var clean          = require('gulp-clean');
+var concat         = require('gulp-concat');
+var merge          = require('merge-stream');
+var newer          = require('gulp-newer');
+var imagemin       = require('gulp-imagemin');
+var injectPartials = require('gulp-inject-partials');
+var minify         = require('gulp-minify');
+var rename         = require('gulp-rename');
+var cssmin         = require('gulp-cssmin');
 
 var SOURCEPATHS = {
-    sassSource: 'src/scss/*.scss',
-    htmlSource: 'src/*.html',
-    jsSource:   'src/js/**',
-    imgSource:  'src/img/**'
+    sassSource:        'src/scss/*.scss',
+    htmlSource:        'src/*.html',
+    htmlPartialSource: 'src/partials/*.html',
+    jsSource:          'src/js/**',
+    imgSource:         'src/img/**'
 }
 var APPPATH = {
     root: 'app/',
@@ -32,6 +37,12 @@ gulp.task('clean-html', function(){
 gulp.task('clean-scripts', function(){
     return gulp.src(APPPATH.js + '/*.js', {read: false, force: true})
     .pipe(clean())
+});
+
+gulp.task('html', function(){
+    return gulp.src(SOURCEPATHS.htmlSource)
+    .pipe(injectPartials())
+    .pipe(gulp.dest(APPPATH.root))
 });
 
 gulp.task('sass', function(){
@@ -65,11 +76,36 @@ gulp.task('scripts', ['clean-scripts'], function(){
     .pipe(gulp.dest(APPPATH.js))
 });
 
+//** Production Tasks */
+gulp.task('compress', function(){
+    gulp.src(SOURCEPATHS.jsSource)
+    .pipe(concat('main.js'))
+    .pipe(minify())
+    .pipe(gulp.dest(APPPATH.js))
+});
+
+gulp.task('compresscss', function(){
+    var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
+    var sassFiles;
+
+    sassFiles = gulp.src(SOURCEPATHS.sassSource)
+        .pipe(autoprefixer())
+        .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
+        return merge(sassFiles, bootstrapCSS)
+        .pipe(concat('app.css'))
+        .pipe(cssmin())
+        .pipe(rename({suffix: '.min'}))
+        .pipe(gulp.dest(APPPATH.css))
+});
+
+//** End of Production Tasks */
+
+/*
 gulp.task('copy', ['clean-html'], function(){
     gulp.src(SOURCEPATHS.htmlSource)
     .pipe(gulp.dest(APPPATH.root))
 });
-
+*/
 gulp.task('serve', ['sass'], function(){
     browserSync.init([APPPATH.css + '/*.css', APPPATH.root + '/*.html', APPPATH.js + '/*.js'], {
         server: {
@@ -78,10 +114,11 @@ gulp.task('serve', ['sass'], function(){
     })
 });
 
-gulp.task('watch', ['serve','sass','copy','clean-html','clean-scripts','scripts','moveFonts','images'], function(){
+gulp.task('watch', ['serve','sass','clean-html','clean-scripts','scripts','moveFonts','images','html'], function(){
     gulp.watch([SOURCEPATHS.sassSource], ['sass']);
-    gulp.watch([SOURCEPATHS.htmlSource], ['copy']);
+    // gulp.watch([SOURCEPATHS.htmlSource], ['copy']);
     gulp.watch([SOURCEPATHS.jsSource],   ['scripts']);
+    gulp.watch([SOURCEPATHS.htmlSource, SOURCEPATHS.htmlPartialSource] ['html']);
 });
 
 gulp.task('default', ['watch']);
